@@ -1,10 +1,13 @@
 package com.gmail.paulovitormelila.musicbuddy;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Paulo on 24/10/2017.
  */
 
-public class Music {
+public class Music implements Parcelable {
     private String Name;
     private String Type;
     private String wTeaser; // description
@@ -68,6 +71,42 @@ public class Music {
     public void setyID(String yID) {
         this.yID = yID;
     }
+
+    private Music (Parcel in) {
+        Name = in.readString();
+        Type = in.readString();
+        wTeaser = in.readString();
+        wUrl = in.readString();
+        yUrl = in.readString();
+        yID = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(Name);
+        parcel.writeString(Type);
+        parcel.writeString(wTeaser);
+        parcel.writeString(wUrl);
+        parcel.writeString(yUrl);
+        parcel.writeString(yID);
+    }
+
+    public static final Parcelable.Creator<Music> CREATOR = new Parcelable.Creator<Music>() {
+        public Music createFromParcel(Parcel in) {
+            return new Music(in);
+        }
+
+        public Music[] newArray(int size) {
+            return new Music[size];
+
+        }
+    };
+
 }
 
 

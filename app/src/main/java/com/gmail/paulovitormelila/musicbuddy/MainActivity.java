@@ -1,13 +1,11 @@
 package com.gmail.paulovitormelila.musicbuddy;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -24,15 +22,12 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private EditText firstBand;
     private EditText secondBand;
+    private EditText thirdBand;
     private Button findBand;
-    private TextView resultBand;
-    private Button youtubeBtn;
-    private Button wikipediaBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
         firstBand = (EditText) findViewById(R.id.firstBand);
         secondBand = (EditText) findViewById(R.id.secondBand);
+        thirdBand = (EditText) findViewById(R.id.thirdBand);
         findBand = (Button) findViewById(R.id.findBand);
-        resultBand = (TextView) findViewById(R.id.resultBand);
-        youtubeBtn = (Button) findViewById(R.id.youtubeBtn);
-        wikipediaBtn = (Button) findViewById(R.id.wikipediaBtn);
 
         findBand.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,19 +48,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getSimilarArtists() {
-        final String BASE_URL = "https://tastedive.com/api/similar";
-        final String query = "?q=";
-        final String first_band = firstBand.getText().toString();
-        final String and1 = "%2C+";
-        final String second_band = secondBand.getText().toString();
-        final String and2 = "&";
-        final String key = "k=";
-        final String api_key = "288613-SoundBud-D2CL1EP4";
-        final String limit = "limit=100";
-        final String type = "type=music&info=1";
+        final String base_url = "https://tastedive.com/api/similar";
+        final String query = "?q=" + firstBand.getText().toString() + "%2C+" + secondBand.getText().toString() + "%2C+" + thirdBand.getText().toString() + "&";
+        final String key = "k=288613-SoundBud-D2CL1EP4&";
+        final String limit = "limit=100&";
+        final String type = "type=music&";
+        final String info = "info=1";
 
-        final String full_url = BASE_URL + query + first_band + and1 + second_band + and2 + key + api_key + and2 + limit + and2 + type;
-        System.out.print(full_url);
+        final String full_url = base_url + query + key + limit + type + info;
+        System.out.println(full_url);
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -82,28 +71,10 @@ public class MainActivity extends AppCompatActivity {
                             JSONArray results = similar.getJSONArray("Results");
 
                             ArrayList<Music> artistsList = new Gson().fromJson(results.toString(), new TypeToken<List<Music>>() {}.getType());
-                            Random rand = new Random();
-                            int value = rand.nextInt(100);
 
-                            String suggestion = artistsList.get(value).getName();
-                            resultBand.setText(suggestion);
-
-                            final String yVideoID = artistsList.get(value).getyID();
-                            final String wikiURL = artistsList.get(value).getwUrl();
-
-                            youtubeBtn.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    youtubeAppIntent(yVideoID);
-                                }
-                            });
-
-                            wikipediaBtn.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    wikipediaArticleIntent(wikiURL);
-                                }
-                            });
+                            Intent intent = new Intent(MainActivity.this, SimilarArtistsActivity.class);
+                            intent.putExtra("ArtistsList", artistsList);
+                            startActivity(intent);
 
                         } catch(JSONException e){
                             e.printStackTrace();
@@ -119,18 +90,5 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         queue.add(jsObjRequest);
-    }
-
-    private void youtubeAppIntent(String videoID) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse("https://www.youtube.com/watch?v=" + videoID));
-        intent.setPackage("com.google.android.youtube");
-        startActivity(intent);
-    }
-
-    private void wikipediaArticleIntent(String wikiPage) {
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setData(Uri.parse(wikiPage));
-        startActivity(intent);
     }
 }

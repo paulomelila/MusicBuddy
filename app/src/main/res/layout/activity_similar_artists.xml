@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context="com.gmail.paulovitormelila.musicbuddy.SimilarArtistsActivity">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:text="Name"
+            android:textSize="20sp"
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_marginTop="30dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="0.501"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:text="Description"
+            android:textSize="16sp"
+            android:id="@+id/description"
+            android:layout_width="361dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="textStart"
+            android:layout_marginTop="80dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintHorizontal_bias="0.521"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp" />
+
+        <ImageView
+            android:id="@+id/youtubeIcon"
+            android:src="@mipmap/ic_youtube"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/description"
+            android:layout_alignStart="@+id/description"
+            android:layout_marginTop="25dp" />
+
+        <ImageView
+            android:id="@+id/wikipediaIcon"
+            android:src="@mipmap/ic_wikipedia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/youtubeIcon"
+            android:layout_toEndOf="@+id/youtubeIcon"
+            android:layout_marginStart="21dp" />
+    </RelativeLayout>
+
+</ScrollView>
