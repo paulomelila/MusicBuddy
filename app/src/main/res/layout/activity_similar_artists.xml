@@ -58,6 +58,17 @@
             android:layout_alignTop="@+id/youtubeIcon"
             android:layout_toEndOf="@+id/youtubeIcon"
             android:layout_marginStart="21dp" />
+
+        <Button
+            android:text="Find Another"
+            android:id="@+id/findAnother"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:layout_below="@+id/wikipediaIcon"
+            android:layout_marginBottom="25dp"
+            android:layout_centerHorizontal="true" />
+
     </RelativeLayout>
 
 </ScrollView>

@@ -103,10 +103,8 @@ public class Music implements Parcelable {
 
         public Music[] newArray(int size) {
             return new Music[size];
-
         }
     };
-
 }
 
 
