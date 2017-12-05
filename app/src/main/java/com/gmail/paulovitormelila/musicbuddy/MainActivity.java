@@ -4,8 +4,9 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -24,32 +25,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private EditText firstBand;
-    private EditText secondBand;
-    private EditText thirdBand;
-    private Button findBand;
+    private EditText mFirstArtist;
+    private EditText mSecondArtist;
+    private EditText mThirdArtist;
+    private ImageButton mFindSimilar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        firstBand = (EditText) findViewById(R.id.firstBand);
-        secondBand = (EditText) findViewById(R.id.secondBand);
-        thirdBand = (EditText) findViewById(R.id.thirdBand);
-        findBand = (Button) findViewById(R.id.findBand);
+        mFirstArtist = findViewById(R.id.firstBand);
+        mSecondArtist = findViewById(R.id.secondBand);
+        mThirdArtist = findViewById(R.id.thirdBand);
+        mFindSimilar = findViewById(R.id.findBand);
 
-        findBand.setOnClickListener(new View.OnClickListener() {
+        mFindSimilar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getSimilarArtists();
+
+                if     (mFirstArtist.getText().toString().trim().length() <= 0 &&
+                        mSecondArtist.getText().toString().trim().length() <= 0 &&
+                        mThirdArtist.getText().toString().trim().length() <= 0) {
+                    Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+                } else getSimilarArtists();
             }
         });
     }
 
+    // method to create a request for the API
     private void getSimilarArtists() {
         final String base_url = "https://tastedive.com/api/similar";
-        final String query = "?q=" + firstBand.getText().toString() + "%2C+" + secondBand.getText().toString() + "%2C+" + thirdBand.getText().toString() + "&";
+        final String query = "?q=" + mFirstArtist.getText().toString() + "%2C+" + mSecondArtist.getText().toString() + "%2C+" + mThirdArtist.getText().toString() + "&";
         final String key = "k=288613-SoundBud-D2CL1EP4&";
         final String limit = "limit=100&";
         final String type = "type=music&";
@@ -70,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
                             JSONObject similar = response.getJSONObject("Similar");
                             JSONArray results = similar.getJSONArray("Results");
 
+                            // Creating an ArrayList with all the artists and sending as an extra to the SimilarArtistsActivity
                             ArrayList<Music> artistsList = new Gson().fromJson(results.toString(), new TypeToken<List<Music>>() {}.getType());
-
                             Intent intent = new Intent(MainActivity.this, SimilarArtistsActivity.class);
                             intent.putExtra("ArtistsList", artistsList);
                             startActivity(intent);
