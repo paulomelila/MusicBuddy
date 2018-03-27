@@ -1,30 +1,19 @@
 package com.gmail.paulovitormelila.musicbuddy;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.AsyncTask;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.InputStream;
+import com.squareup.picasso.Picasso;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -76,7 +65,6 @@ public class SimilarArtistsActivity extends AppCompatActivity {
                 index = (index + 1) % artistsList.size();
                 artistName.setText(artistsList.get(index).getName());
                 artistDescription.setText(artistsList.get(index).getwTeaser());
-                artistPhoto.setImageResource(R.mipmap.photo_placeholder);
                 getArtistPhoto(artistsList.get(index).getwUrl(), artistPhoto);
             }
         });
@@ -100,66 +88,24 @@ public class SimilarArtistsActivity extends AppCompatActivity {
     }
 
     // method to set each artist's profile photo
-    public void getArtistPhoto(String wikipediaURL, final ImageView artistPhoto) {
-        String baseURL = "http://motyar.info/webscrapemaster/api/?url=";
-        String endURL = "&xpath=//div[@id=mw-content-text]/div/table[1]/tbody/tr[2]/td/a/img#vws";
-        String fullURL = baseURL + wikipediaURL + endURL;
+    private void getArtistPhoto(String wikipediaURL, final ImageView artistPhoto) {
+        //TODO: Fix NetworkOnMainThreadException
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
-        RequestQueue queue = Volley.newRequestQueue(this);
-
-        final JsonArrayRequest jsonArrayRequest = new JsonArrayRequest
-                (Request.Method.GET, fullURL, null, new Response.Listener<JSONArray>() {
-
-                    @Override
-                    public void onResponse(JSONArray response) {
-
-                        try {
-                            JSONObject jsonObject = response.getJSONObject(0);
-                            String imageURL = "https:" + jsonObject.getString("src");
-
-                            Log.e("Image URL: ", imageURL);
-
-                            new DownloadImageTask(artistPhoto).execute(imageURL);
-
-                        } catch(JSONException e){
-                            e.printStackTrace();
-                        }
-                    }
-
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        // TODO Auto-generated method stub
-                    }
-                });
-
-        queue.add(jsonArrayRequest);
+        try {
+            Document doc = Jsoup.connect(wikipediaURL).get();
+            Element table = doc.getElementsByTag("table").first();
+            Element td = table.getElementsByTag("td").first();
+            String img = "https://" + td.getElementsByTag("img").first().attr("src");
+            downloadProfilePhoto(img, artistPhoto);
+        } catch (IOException e) { e.printStackTrace(); }
     }
 
-    // method to download each artist's profile photo
-    private static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-        ImageView bmImage;
-
-        private DownloadImageTask(ImageView bmImage) {
-            this.bmImage = bmImage;
-        }
-
-        protected Bitmap doInBackground(String... urls) {
-            String urldisplay = urls[0];
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
-            return mIcon11;
-        }
-
-        protected void onPostExecute(Bitmap result) {
-            bmImage.setImageBitmap(result);
-        }
+    private void downloadProfilePhoto(String imageURL, ImageView placeholder) {
+        Picasso.get()
+                .load(imageURL)
+                .placeholder(R.mipmap.photo_placeholder)
+                .into(placeholder);
     }
 }
