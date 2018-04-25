@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollview"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -28,7 +29,7 @@
         <TextView
             android:text="@string/name"
             android:textSize="20sp"
-            android:id="@+id/name"
+            android:id="@+id/artistName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"
@@ -38,7 +39,7 @@
         <TextView
             android:text="@string/description"
             android:textSize="16sp"
-            android:id="@+id/description"
+            android:id="@+id/artistDescription"
             android:layout_width="361dp"
             android:layout_height="wrap_content"
             android:textAlignment="textStart"
@@ -49,7 +50,7 @@
             app:layout_constraintHorizontal_bias="0.521"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_below="@+id/name"
+            android:layout_below="@+id/artistName"
             android:layout_centerHorizontal="true" />
 
         <ImageView
@@ -57,8 +58,8 @@
             android:src="@mipmap/ic_youtube"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/description"
-            android:layout_alignStart="@+id/description"
+            android:layout_below="@+id/artistDescription"
+            android:layout_alignStart="@+id/artistDescription"
             android:layout_marginTop="25dp" />
 
         <ImageView
@@ -73,7 +74,7 @@
         <ImageButton
             android:src="@android:drawable/ic_media_next"
             android:backgroundTint="@android:color/black"
-            android:id="@+id/findAnother"
+            android:id="@+id/nextArtist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"

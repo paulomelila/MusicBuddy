@@ -35,32 +35,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mFirstArtist = findViewById(R.id.firstBand);
-        mSecondArtist = findViewById(R.id.secondBand);
-        mThirdArtist = findViewById(R.id.thirdBand);
-        mFindSimilar = findViewById(R.id.findBand);
-
-        mFindSimilar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if     (mFirstArtist.getText().toString().trim().length() <= 0 &&
-                        mSecondArtist.getText().toString().trim().length() <= 0 &&
-                        mThirdArtist.getText().toString().trim().length() <= 0) {
-                    Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
-                } else getSimilarArtists();
-            }
-        });
+        instantiateWidgets();
+        onClickListeners();
     }
 
-    // method to create a request for the API
     private void getSimilarArtists() {
-        final String base_url = "https://tastedive.com/api/similar";
-        final String query = "?q=" + mFirstArtist.getText().toString() + "%2C+" + mSecondArtist.getText().toString() + "%2C+" + mThirdArtist.getText().toString() + "&";
-        final String key = "k=288613-SoundBud-D2CL1EP4&";
-        final String limit = "limit=100&";
-        final String type = "type=music&";
-        final String info = "info=1";
+        final String base_url = getString(R.string.base_url);
+        final String query = mFirstArtist.getText().toString() + "%2C+" + mSecondArtist.getText().toString() + "%2C+" + mThirdArtist.getText().toString() + "&";
+        final String key = getString(R.string.api_key);
+        final String limit = getString(R.string.limit);
+        final String type = getString(R.string.type);
+        final String info = getString(R.string.info);
 
         final String full_url = base_url + query + key + limit + type + info;
         System.out.println(full_url);
@@ -97,5 +82,32 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         queue.add(jsObjRequest);
+    }
+
+    private void instantiateWidgets() {
+        mFirstArtist = findViewById(R.id.firstBand);
+        mSecondArtist = findViewById(R.id.secondBand);
+        mThirdArtist = findViewById(R.id.thirdBand);
+        mFindSimilar = findViewById(R.id.findBand);
+    }
+
+    private boolean areFieldsEmpty() {
+        return mFirstArtist.getText().toString().trim().length() <= 0 &&
+                mSecondArtist.getText().toString().trim().length() <= 0 &&
+                mThirdArtist.getText().toString().trim().length() <= 0;
+    }
+
+    private void displayToast(String message) {
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void onClickListeners() {
+        mFindSimilar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (areFieldsEmpty()) { displayToast(getString(R.string.error));}
+                else getSimilarArtists();
+            }
+        });
     }
 }

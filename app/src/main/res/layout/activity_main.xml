@@ -33,6 +33,7 @@
 
 
     <EditText
+        android:inputType="text"
         android:id="@+id/firstBand"
         android:layout_width="200dp"
         android:layout_height="50dp"
@@ -44,6 +45,7 @@
         app:layout_constraintVertical_bias="0.422" />
 
     <EditText
+        android:inputType="text"
         android:id="@+id/secondBand"
         android:layout_width="200dp"
         android:layout_height="50dp"
@@ -54,6 +56,7 @@
         app:layout_constraintTop_toBottomOf="@+id/firstBand" />
 
     <EditText
+        android:inputType="text"
         android:id="@+id/thirdBand"
         android:layout_width="200dp"
         android:layout_height="50dp"

@@ -2,12 +2,14 @@ package com.gmail.paulovitormelila.musicbuddy;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import org.jsoup.Jsoup;
@@ -18,61 +20,84 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class SimilarArtistsActivity extends AppCompatActivity {
-    int index = 0;
+    private TextView mArtistName;
+    private TextView mArtistDescription;
+    private ImageView mYoutubeIcon;
+    private ImageView mWikipediaIcon;
+    private ImageButton mNextArtistImgButton;
+    private ImageView mArtistPhoto;
+
+    private ArrayList<Music> mArtistsList;
+    private int mIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_similar_artists);
 
-        // widgets
-        final TextView artistName = findViewById(R.id.name);
-        final TextView artistDescription = findViewById(R.id.description);
-        ImageView youtubeIcon = findViewById(R.id.youtubeIcon);
-        ImageView wikipediaIcon = findViewById(R.id.wikipediaIcon);
-        ImageButton findAnother = findViewById(R.id.findAnother);
-        final ImageView artistPhoto = findViewById(R.id.artistPhoto);
+        instantiateWidgets();
 
-        // intent to receive the ArrayList from the MainActivity
-        Intent intent = getIntent();
-        final ArrayList<Music> artistsList = intent.getParcelableArrayListExtra("ArtistsList");
-        Collections.shuffle(artistsList);
+        getArtistsList();
 
-        artistName.setText(artistsList.get(index).getName());
-        artistDescription.setText(artistsList.get(index).getwTeaser());
+        new PhotoLoader().execute();
 
-        for (int i = 0; i < artistsList.size(); i++) {
-            System.out.println((i+1) + ". " + artistsList.get(i).getName());
-        }
+        displayArtistInfo();
 
-        youtubeIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                youtubeAppIntent(artistsList.get(index).getyID());
-            }
-        });
+        logs();
 
-        wikipediaIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                wikipediaArticleIntent(artistsList.get(index).getwUrl());
-            }
-        });
-
-        findAnother.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                index = (index + 1) % artistsList.size();
-                artistName.setText(artistsList.get(index).getName());
-                artistDescription.setText(artistsList.get(index).getwTeaser());
-                getArtistPhoto(artistsList.get(index).getwUrl(), artistPhoto);
-            }
-        });
-
-        getArtistPhoto(artistsList.get(index).getwUrl(), artistPhoto);
+        onCLickListeners();
     }
 
-    // method to open youtube app when user taps on the youtube icon
+    private void instantiateWidgets() {
+        // widgets
+        mArtistName = findViewById(R.id.artistName);
+        mArtistDescription = findViewById(R.id.artistDescription);
+        mYoutubeIcon = findViewById(R.id.youtubeIcon);
+        mWikipediaIcon = findViewById(R.id.wikipediaIcon);
+        mNextArtistImgButton = findViewById(R.id.nextArtist);
+        mArtistPhoto = findViewById(R.id.artistPhoto);
+    }
+
+    private void getArtistsList() {
+        Intent intent = getIntent();
+        mArtistsList = intent.getParcelableArrayListExtra("ArtistsList");
+        Collections.shuffle(mArtistsList);
+    }
+
+    private void displayArtistInfo() {
+        mArtistName.setText(mArtistsList.get(mIndex).getName());
+        mArtistDescription.setText(mArtistsList.get(mIndex).getwTeaser());
+    }
+
+    private void onCLickListeners() {
+        mYoutubeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                youtubeAppIntent(mArtistsList.get(mIndex).getyID());
+            }
+        });
+
+        mWikipediaIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                wikipediaArticleIntent(mArtistsList.get(mIndex).getwUrl());
+            }
+        });
+
+        mNextArtistImgButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mIndex = (mIndex + 1) % mArtistsList.size();
+                mArtistName.setText(mArtistsList.get(mIndex).getName());
+                mArtistDescription.setText(mArtistsList.get(mIndex).getwTeaser());
+                new PhotoLoader().execute();
+
+                ScrollView mScrollView = findViewById(R.id.scrollview);
+                mScrollView.fullScroll(ScrollView.FOCUS_UP);
+            }
+        });
+    }
+
     private void youtubeAppIntent(String videoID) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse("https://www.youtube.com/watch?v=" + videoID));
@@ -80,32 +105,62 @@ public class SimilarArtistsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // method to open wikipedia when user taps on the wikipedia icon
     private void wikipediaArticleIntent(String wikiPage) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(wikiPage));
         startActivity(intent);
     }
 
-    // method to set each artist's profile photo
-    private void getArtistPhoto(String wikipediaURL, final ImageView artistPhoto) {
-        //TODO: Fix NetworkOnMainThreadException
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+    private class PhotoLoader extends AsyncTask<Void, Void, String>{
+        @Override
+        protected String doInBackground(Void... voids) {
+            String photoURL = "";
 
-        try {
-            Document doc = Jsoup.connect(wikipediaURL).get();
-            Element table = doc.getElementsByTag("table").first();
-            Element td = table.getElementsByTag("td").first();
-            String img = "https://" + td.getElementsByTag("img").first().attr("src");
-            downloadProfilePhoto(img, artistPhoto);
-        } catch (IOException e) { e.printStackTrace(); }
+            try {
+                Document doc = Jsoup.connect(mArtistsList.get(mIndex).getwUrl()).get();
+                Element table = doc.getElementsByTag("table").first();
+                Element td = table.getElementsByTag("td").first();
+
+                if (!td.getElementsByTag("img").isEmpty()) {
+
+                    if (td.getElementsByTag("img").first().hasAttr("src")) {
+                        photoURL = "https://" + td.getElementsByTag("img")
+                                .first()
+                                .attr("src");
+                    }
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return photoURL;
+        }
+
+        @Override
+        protected void onPostExecute(String photoURL) {
+            attachPhoto(photoURL, mArtistPhoto);
+        }
     }
 
-    private void downloadProfilePhoto(String imageURL, ImageView placeholder) {
-        Picasso.get()
-                .load(imageURL)
-                .placeholder(R.mipmap.photo_placeholder)
-                .into(placeholder);
+    private void attachPhoto(String imageURL, ImageView imageView) {
+        if (imageURL.isEmpty()) {
+            Picasso.get()
+                    .load(R.mipmap.photo_placeholder)
+                    .into(imageView);
+        } else {
+            Picasso.get()
+                    .load(imageURL)
+                    .placeholder(R.mipmap.photo_placeholder)
+                    .into(imageView);
+        }
+    }
+
+    private void logs() {
+        for (int i = 0; i < mArtistsList.size(); i++) {
+            System.out.println((i+1) + ". " + mArtistsList.get(i).getName());
+        }
     }
 }
+
+

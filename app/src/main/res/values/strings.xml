@@ -8,4 +8,12 @@
     <string name="error">Enter at least one artist to proceed</string>
     <string name="name">Name</string>
     <string name="description">Description</string>
+
+    <string name="base_url">https://tastedive.com/api/similar?q=</string>
+    <string name="api_key">k=288613-SoundBud-D2CL1EP4&amp;</string>
+    <string name="limit">limit=100&amp;</string>
+    <string name="type">type=music&amp;</string>
+    <string name="info">info=1</string>
+
+
 </resources>
